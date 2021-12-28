@@ -1,20 +1,10 @@
 import React, { Component } from "react";
 import axios from 'axios'
+import http from './services/httpService'
+import config from './config.json'
 import "./App.css";
 
-axios.interceptors.response.use(null, error => {
-  const expectedError = error.response &&
-    error.response.status >= 400 &&
-    error.response.status <= 500;
 
-  if (!expectedError) {
-    console.log('Logging the error', error)
-    alert("An unexpected error occurred. ")
-  }
-  return Promise.reject(error);
-})
-
-const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
 
 class App extends Component {
   state = {
@@ -28,21 +18,21 @@ class App extends Component {
 
     // const response = await axios.get('https://jsonplaceholder.typicode.com/posts')
 
-    const { data: posts } = await axios.get(apiEndpoint)
+    const { data: posts } = await http.get(config.apiEndpoint)
     this.setState({ posts })
   }
 
   handleAdd = async () => {
     const obj = { title: 'a', body: 'b' }
 
-    const { data: post } = await axios.post(apiEndpoint, obj);
+    const { data: post } = await http.post(config.apiEndpoint, obj);
     const posts = [post, ...this.state.posts]
     this.setState({ posts })
   };
 
   handleUpdate = async post => {
     post.title = "UPDATED"
-    await axios.put(apiEndpoint + '/' + post.id, post)  //put - entire object
+    await http.put(config.apiEndpoint + '/' + post.id, post)  //put - entire object
     //axios.patch(apiEndpoint + '/' + post.id, { title: post.title })    //some props
 
     const posts = [...this.state.posts]
@@ -58,7 +48,7 @@ class App extends Component {
     this.setState({ posts })
 
     try {
-      await axios.delete(apiEndpoint + '/' + post.id)
+      await http.delete(config.apiEndpoint + '/' + post.id)
     } catch (ex) {
       //ex.request
       //ex.response
@@ -75,9 +65,6 @@ class App extends Component {
 
       this.setState({ posts: originalPosts })
     }
-
-
-
 
   };
 
